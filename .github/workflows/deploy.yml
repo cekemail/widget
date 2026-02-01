@@ -1,0 +1,61 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches: [main]
+  release:
+    types: [published]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test -- --run
+
+      - name: Build
+        run: npm run build
+
+      - name: Prepare deployment files
+        run: |
+          mkdir -p deploy/widget/v1
+
+          # Copy main files to widget root (latest)
+          cp dist/index.umd.js deploy/widget/cekemail.js
+          cp dist/index.umd.min.js deploy/widget/cekemail.min.js
+          cp dist/index.esm.js deploy/widget/cekemail.esm.js
+
+          # Copy versioned files (v1)
+          cp dist/index.umd.js deploy/widget/v1/cekemail.js
+          cp dist/index.umd.min.js deploy/widget/v1/cekemail.min.js
+          cp dist/index.esm.js deploy/widget/v1/cekemail.esm.js
+
+          # Create version info
+          echo "{\"version\": \"$(node -p "require('./package.json').version")\", \"commit\": \"${{ github.sha }}\", \"date\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"}" > deploy/widget/version.json
+
+          # List files for verification
+          echo "Files to deploy:"
+          find deploy -type f
+
+      - name: Deploy to static.cekemail.com
+        uses: swznd/ftp-sftp-actions@master
+        with:
+          host: ${{ secrets.SFTP_HOST }}
+          user: ${{ secrets.SFTP_USER }}
+          privateKey: ${{ secrets.SSH_KEY }}
+          actions: |
+            upload deploy/widget ./web/static.cekemail.com/widget
+            write ${{ github.sha }} ./web/static.cekemail.com/widget/.revision

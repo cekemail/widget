@@ -1,0 +1,41 @@
+name: Test
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test -- --run --coverage
+
+      - name: Build
+        run: npm run build
+
+      - name: Verify build outputs
+        run: |
+          echo "Checking build outputs..."
+          test -f dist/index.esm.js || (echo "Missing ESM build" && exit 1)
+          test -f dist/index.cjs.js || (echo "Missing CJS build" && exit 1)
+          test -f dist/index.umd.js || (echo "Missing UMD build" && exit 1)
+          test -f dist/index.umd.min.js || (echo "Missing minified UMD build" && exit 1)
+          test -f dist/index.d.ts || (echo "Missing type definitions" && exit 1)
+          echo "All build outputs present!"
+          ls -la dist/
