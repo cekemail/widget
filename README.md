@@ -71,6 +71,8 @@ widget.init({ apiKey: 'wk_xxxxxxxxxxxxx' });
 | `validateOnBlur` | `boolean` | `true` | Validate when field loses focus |
 | `validateOnChange` | `boolean` | `false` | Validate while typing |
 | `cssClass` | `object` | See below | Custom CSS class names |
+| `locale` | `string` | `'en'` | Language for built-in messages (`en`, `id`) |
+| `messages` | `object \| function` | `null` | Custom messages keyed by reason code, or a function (see [Localization](#localization)) |
 
 ### CSS Classes
 
@@ -83,6 +85,57 @@ widget.init({ apiKey: 'wk_xxxxxxxxxxxxx' });
   indicator: 'cekemail-indicator',
 }
 ```
+
+## Localization
+
+The widget ships with English and Indonesian messages. Pick one with `locale`, override any string with `messages`, or supply a function for full control. Messages are shown as the input's tooltip and in the `data-cekemail-message` attribute.
+
+```html
+<script>
+  CekEmail_APIKEY = 'wk_xxxxxxxxxxxxx';
+  CekEmail_LOCALE = 'id';
+  CekEmail_MESSAGES = { mailbox_not_found: 'Alamat ini tidak ditemukan' };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@cekemail/widget"></script>
+```
+
+```typescript
+widget.init({
+  apiKey: 'wk_xxxxxxxxxxxxx',
+  locale: 'en',
+  messages: {
+    invalid_format: 'Please enter a valid email address',
+    disposable: 'Temporary email providers are not allowed',
+  },
+});
+
+// Function form: return a string, or a falsy value to fall back to the defaults
+widget.init({
+  apiKey: 'wk_xxxxxxxxxxxxx',
+  messages: (result, isValid) => (isValid ? null : `We could not verify ${result.input}`),
+});
+```
+
+Messages are looked up by the API's `reason_code`. Keys you can override:
+
+| Key | When it is shown |
+|-----|------------------|
+| `checking` | While a lookup is in progress |
+| `invalid_format` | The address failed the local format check |
+| `mailbox_exists` | The mailbox exists and accepts mail |
+| `mailbox_not_found` | The mail server reported the mailbox does not exist |
+| `mailbox_full` | The mailbox is over quota |
+| `mailbox_not_allowed` | The mail server does not accept this mailbox name |
+| `no_mx_records` | The domain has no mail server |
+| `disposable` | The domain is a disposable email provider |
+| `catch_all` | The domain accepts any address |
+| `greylisted` | The mail server asked for a retry |
+| `smtp_unreachable` | No mail server could be reached |
+| `server_temporarily_unavailable` | The mail server returned a temporary failure |
+| `sender_blocked` | The mail server refused the verification |
+| `policy_rejected` | The mail server rejected the address for policy reasons |
+| `unknown` | The verification could not be completed |
+| `valid` / `invalid` | Generic fallbacks when no code matches |
 
 ## API
 

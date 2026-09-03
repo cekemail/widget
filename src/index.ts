@@ -25,7 +25,11 @@ export { CekEmail } from './cekemail';
 export type {
   CekEmailConfig,
   CekEmailCssClasses,
+  CekEmailMessages,
   CekEmailState,
+  MessageKey,
+  MessageResolver,
+  ReasonCode,
   ValidationResult,
   ValidatedEventDetail,
   CekEmailInstance,
@@ -33,6 +37,7 @@ export type {
 export { isValidEmailFormat, normalizeEmail } from './validator';
 export { ApiClient, ApiError } from './api';
 export { DEFAULT_CONFIG, DEFAULT_API_URL, mergeConfig } from './config';
+export { BUILT_IN_MESSAGES, DEFAULT_LOCALE, resolveMessages, messageForResult } from './messages';
 
 // Browser auto-initialization
 import { CekEmail } from './cekemail';

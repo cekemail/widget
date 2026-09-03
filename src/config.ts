@@ -28,6 +28,8 @@ export const DEFAULT_CONFIG: CekEmailConfig = {
   validateOnBlur: true,
   validateOnChange: false,
   cssClass: { ...DEFAULT_CSS_CLASSES },
+  locale: 'en',
+  messages: null,
 };
 
 /**

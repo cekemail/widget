@@ -12,6 +12,8 @@ describe('CekEmail', () => {
     // Reset window globals
     delete (window as any).CekEmail_APIKEY;
     delete (window as any).CekEmail_API_URL;
+    delete (window as any).CekEmail_LOCALE;
+    delete (window as any).CekEmail_MESSAGES;
 
     // Create fresh instance
     widget = new CekEmail();
@@ -276,5 +278,89 @@ describe('CekEmail', () => {
       expect(result).toEqual(apiResult);
       expect(widget.state.cache.has('new@example.com')).toBe(true);
     });
+  });
+});
+
+describe('CekEmail localization', () => {
+  let widget: CekEmail;
+
+  beforeEach(() => {
+    document.body.innerHTML = '<input type="email" id="email">';
+    delete (window as any).CekEmail_LOCALE;
+    delete (window as any).CekEmail_MESSAGES;
+    widget = new CekEmail();
+    vi.spyOn(console, 'log').mockImplementation(() => {});
+    vi.stubGlobal('fetch', vi.fn());
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+    vi.useRealTimers();
+  });
+
+  it('uses bundled Indonesian messages when locale is id', () => {
+    widget.init({ apiKey: 'test-key', locale: 'id', autoAttach: false });
+    const input = document.getElementById('email') as HTMLInputElement;
+    widget.attachToInput(input);
+    input.value = 'not-an-email';
+
+    widget.validate(input);
+
+    expect(input.getAttribute('data-cekemail-message')).toBe('Format email tidak valid');
+  });
+
+  it('reads locale and custom messages from window globals', () => {
+    window.CekEmail_LOCALE = 'id';
+    window.CekEmail_MESSAGES = { invalid_format: 'Alamat tidak sah' };
+    widget.init({ apiKey: 'test-key', autoAttach: false });
+    const input = document.getElementById('email') as HTMLInputElement;
+    widget.attachToInput(input);
+    input.value = 'nope';
+
+    widget.validate(input);
+
+    expect(widget.config.locale).toBe('id');
+    expect(input.getAttribute('data-cekemail-message')).toBe('Alamat tidak sah');
+  });
+
+  it('maps the API reason_code to a custom message after validation', async () => {
+    vi.useFakeTimers();
+    vi.mocked(fetch).mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        data: { is_valid: true, is_reachable: false, is_disposable_email: false, reason: 'Mailbox does not exist', reason_code: 'mailbox_not_found' },
+      }),
+    } as Response);
+    widget.init({ apiKey: 'test-key', autoAttach: false, messages: { mailbox_not_found: 'No such inbox' } });
+    const input = document.getElementById('email') as HTMLInputElement;
+    widget.attachToInput(input);
+    input.value = 'nobody@example.com';
+
+    widget.validate(input);
+    expect(input.getAttribute('data-cekemail-message')).toBe('Checking…');
+    await vi.advanceTimersByTimeAsync(800);
+
+    expect(input.getAttribute('data-cekemail-state')).toBe('invalid');
+    expect(input.getAttribute('data-cekemail-message')).toBe('No such inbox');
+  });
+
+  it('lets a resolver function decide the message', async () => {
+    vi.useFakeTimers();
+    vi.mocked(fetch).mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({ data: { is_valid: true, is_reachable: true, is_disposable_email: false, reason_code: 'mailbox_exists' } }),
+    } as Response);
+    widget.init({ apiKey: 'test-key', autoAttach: false, messages: (result, isValid) => (isValid ? `OK ${result.reason_code}` : null) });
+    const input = document.getElementById('email') as HTMLInputElement;
+    widget.attachToInput(input);
+    input.value = 'someone@example.com';
+
+    widget.validate(input);
+    await vi.advanceTimersByTimeAsync(800);
+
+    expect(input.getAttribute('data-cekemail-message')).toBe('OK mailbox_exists');
   });
 });

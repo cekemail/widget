@@ -1,5 +1,6 @@
 import type {
   CekEmailConfig,
+  CekEmailMessages,
   CekEmailState,
   CekEmailInput,
   ValidationResult,
@@ -12,6 +13,7 @@ import {
   DEFAULT_API_URL,
 } from './config';
 import { injectStyles } from './styles';
+import { resolveMessages, messageForResult } from './messages';
 import { isValidEmailFormat, normalizeEmail } from './validator';
 import { ApiClient, ApiError } from './api';
 import {
@@ -31,10 +33,12 @@ import {
 export class CekEmail {
   public config: CekEmailConfig;
   public state: CekEmailState;
+  public messages: CekEmailMessages;
   private apiClient: ApiClient | null = null;
 
   constructor() {
     this.config = { ...DEFAULT_CONFIG };
+    this.messages = resolveMessages(DEFAULT_CONFIG.locale, null);
     this.state = {
       initialized: false,
       timers: new Map(),
@@ -63,9 +67,22 @@ export class CekEmail {
           apiUrl: window.CekEmail_API_URL,
         };
       }
+      if (window.CekEmail_LOCALE && !userConfig?.locale) {
+        userConfig = {
+          ...userConfig,
+          locale: window.CekEmail_LOCALE,
+        };
+      }
+      if (window.CekEmail_MESSAGES && !userConfig?.messages) {
+        userConfig = {
+          ...userConfig,
+          messages: window.CekEmail_MESSAGES,
+        };
+      }
     }
 
     this.config = mergeConfig(this.config, userConfig);
+    this.messages = resolveMessages(this.config.locale, this.config.messages);
 
     // Set default API URL if not provided
     if (!this.config.apiUrl) {
@@ -170,7 +187,7 @@ export class CekEmail {
         input as CekEmailInput,
         'invalid',
         this.config.cssClass,
-        'Invalid email format'
+        this.messages.invalid_format
       );
       return;
     }
@@ -187,7 +204,7 @@ export class CekEmail {
       clearTimeout(existingTimer);
     }
 
-    setValidationState(input as CekEmailInput, 'checking', this.config.cssClass);
+    setValidationState(input as CekEmailInput, 'checking', this.config.cssClass, this.messages.checking);
 
     const timer = setTimeout(() => {
       this.validateEmailForInput(input, email);
@@ -246,7 +263,8 @@ export class CekEmail {
   ): void {
     const isValid = result.is_valid && result.is_reachable && !result.is_disposable_email;
     const state = isValid ? 'valid' : 'invalid';
-    const message = result.reason || (isValid ? 'Email is valid' : 'Email is invalid');
+    const resolver = typeof this.config.messages === 'function' ? this.config.messages : null;
+    const message = messageForResult(result, isValid, this.messages, resolver, this.config.locale);
 
     setValidationState(input as CekEmailInput, state, this.config.cssClass, message);
 

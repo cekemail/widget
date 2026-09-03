@@ -18,7 +18,45 @@ export interface CekEmailConfig {
   validateOnChange: boolean;
   /** CSS class names for styling */
   cssClass: CekEmailCssClasses;
+  /** Locale for built-in messages ('en' or 'id'); unknown locales fall back to English */
+  locale: string;
+  /** Custom messages: a partial map keyed by reason code, or a function that returns the text */
+  messages: Partial<CekEmailMessages> | MessageResolver | null;
 }
+
+/**
+ * Stable reason codes returned by the API as `reason_code`
+ */
+export type ReasonCode =
+  | 'invalid_format'
+  | 'no_mx_records'
+  | 'mailbox_exists'
+  | 'mailbox_not_found'
+  | 'mailbox_full'
+  | 'mailbox_not_allowed'
+  | 'disposable'
+  | 'catch_all'
+  | 'greylisted'
+  | 'smtp_unreachable'
+  | 'server_temporarily_unavailable'
+  | 'sender_blocked'
+  | 'policy_rejected'
+  | 'unknown';
+
+/**
+ * Keys of the message table: every reason code plus the widget's own states
+ */
+export type MessageKey = ReasonCode | 'checking' | 'valid' | 'invalid';
+
+/**
+ * Message table used for tooltips and the data-cekemail-message attribute
+ */
+export type CekEmailMessages = Record<MessageKey, string>;
+
+/**
+ * Function form of custom messages. Return a falsy value to fall back to the defaults.
+ */
+export type MessageResolver = (result: ValidationResult, isValid: boolean) => string | null | undefined;
 
 /**
  * CSS class names used by the widget
@@ -60,8 +98,12 @@ export interface ValidationResult {
   is_reachable: boolean;
   /** Whether the email is from a disposable provider */
   is_disposable_email: boolean;
-  /** Reason for the validation result */
+  /** Verification status (valid, invalid, disposable, catch_all, greylisted, unknown) */
+  status?: string;
+  /** Reason for the validation result (free text, English) */
   reason?: string;
+  /** Stable code for the reason; prefer this over `reason` for custom messages */
+  reason_code?: ReasonCode | string;
 }
 
 /**
@@ -100,6 +142,8 @@ declare global {
   interface Window {
     CekEmail_APIKEY?: string;
     CekEmail_API_URL?: string;
+    CekEmail_LOCALE?: string;
+    CekEmail_MESSAGES?: Partial<CekEmailMessages>;
     CekEmail?: CekEmailInstance;
   }
 }
