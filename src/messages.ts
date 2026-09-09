@@ -14,6 +14,7 @@ export const BUILT_IN_MESSAGES: Record<string, CekEmailMessages> = {
     checking: 'Checking…',
     valid: 'Email is valid',
     invalid: 'Email is invalid',
+    did_you_mean: 'Did you mean :suggestion?',
     invalid_format: 'Invalid email format',
     no_mx_records: 'This domain cannot receive email',
     mailbox_exists: 'Email is valid',
@@ -33,6 +34,7 @@ export const BUILT_IN_MESSAGES: Record<string, CekEmailMessages> = {
     checking: 'Memeriksa…',
     valid: 'Email valid',
     invalid: 'Email tidak valid',
+    did_you_mean: 'Mungkin maksud Anda :suggestion?',
     invalid_format: 'Format email tidak valid',
     no_mx_records: 'Domain ini tidak dapat menerima email',
     mailbox_exists: 'Email valid',
@@ -62,6 +64,15 @@ export function resolveMessages(
   const overrides = custom && typeof custom === 'object' ? custom : {};
 
   return { ...BUILT_IN_MESSAGES[DEFAULT_LOCALE], ...base, ...overrides };
+}
+
+/**
+ * Replace `:name` style placeholders in a message with the given params.
+ */
+export function formatMessage(message: string, params: Record<string, string>): string {
+  return message.replace(/:([a-zA-Z_][a-zA-Z0-9_]*)/g, (placeholder, name: string) =>
+    name in params ? params[name] : placeholder
+  );
 }
 
 /**

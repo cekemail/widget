@@ -10,6 +10,8 @@ export interface CekEmailConfig {
   debounce: number;
   /** Whether to show visual indicators */
   showIndicator: boolean;
+  /** Whether to show the "did you mean" hint when the API returns a suggestion */
+  showSuggestion: boolean;
   /** Whether to auto-attach to email inputs */
   autoAttach: boolean;
   /** Whether to validate on blur */
@@ -46,7 +48,7 @@ export type ReasonCode =
 /**
  * Keys of the message table: every reason code plus the widget's own states
  */
-export type MessageKey = ReasonCode | 'checking' | 'valid' | 'invalid';
+export type MessageKey = ReasonCode | 'checking' | 'valid' | 'invalid' | 'did_you_mean';
 
 /**
  * Message table used for tooltips and the data-cekemail-message attribute
@@ -72,6 +74,8 @@ export interface CekEmailCssClasses {
   wrapper: string;
   /** Class for indicator element */
   indicator: string;
+  /** Class for the "did you mean" hint element */
+  suggestion: string;
 }
 
 /**
@@ -104,6 +108,8 @@ export interface ValidationResult {
   reason?: string;
   /** Stable code for the reason; prefer this over `reason` for custom messages */
   reason_code?: ReasonCode | string;
+  /** Corrected address when the API detects a likely typo, e.g. `jane@gmail.com` */
+  suggestion?: string | null;
 }
 
 /**
@@ -133,6 +139,7 @@ export interface ValidatedEventDetail {
  */
 export interface CekEmailInput extends HTMLInputElement {
   __cekemailIndicator?: HTMLSpanElement;
+  __cekemailSuggestion?: HTMLDivElement;
 }
 
 /**

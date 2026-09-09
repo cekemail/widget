@@ -9,6 +9,7 @@ export const DEFAULT_CSS_CLASSES: CekEmailCssClasses = {
   checking: 'cekemail-checking',
   wrapper: 'cekemail-wrapper',
   indicator: 'cekemail-indicator',
+  suggestion: 'cekemail-suggestion',
 };
 
 /**
@@ -24,6 +25,7 @@ export const DEFAULT_CONFIG: CekEmailConfig = {
   apiUrl: null,
   debounce: 800,
   showIndicator: true,
+  showSuggestion: true,
   autoAttach: true,
   validateOnBlur: true,
   validateOnChange: false,

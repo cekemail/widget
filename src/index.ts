@@ -37,7 +37,7 @@ export type {
 export { isValidEmailFormat, normalizeEmail } from './validator';
 export { ApiClient, ApiError } from './api';
 export { DEFAULT_CONFIG, DEFAULT_API_URL, mergeConfig } from './config';
-export { BUILT_IN_MESSAGES, DEFAULT_LOCALE, resolveMessages, messageForResult } from './messages';
+export { BUILT_IN_MESSAGES, DEFAULT_LOCALE, resolveMessages, messageForResult, formatMessage } from './messages';
 
 // Browser auto-initialization
 import { CekEmail } from './cekemail';

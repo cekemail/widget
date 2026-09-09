@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { CekEmail } from '../src/cekemail';
+import type { CekEmailConfig } from '../src/types';
 
 describe('CekEmail', () => {
   let widget: CekEmail;
@@ -362,5 +363,125 @@ describe('CekEmail localization', () => {
     await vi.advanceTimersByTimeAsync(800);
 
     expect(input.getAttribute('data-cekemail-message')).toBe('OK mailbox_exists');
+  });
+});
+
+describe('CekEmail suggestions', () => {
+  let widget: CekEmail;
+
+  const mockSuggestion = (suggestion: string | null) => {
+    vi.mocked(fetch).mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        data: { is_valid: true, is_reachable: false, is_disposable_email: false, reason_code: 'mailbox_not_found', suggestion },
+      }),
+    } as Response);
+  };
+
+  beforeEach(() => {
+    document.body.innerHTML = '<input type="email" id="email">';
+    delete (window as any).CekEmail_LOCALE;
+    delete (window as any).CekEmail_MESSAGES;
+    widget = new CekEmail();
+    vi.spyOn(console, 'log').mockImplementation(() => {});
+    vi.stubGlobal('fetch', vi.fn());
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+    vi.useRealTimers();
+  });
+
+  const validateTypo = async (config: Partial<CekEmailConfig> = {}) => {
+    widget.init({ apiKey: 'test-key', autoAttach: false, ...config });
+    const input = document.getElementById('email') as HTMLInputElement;
+    widget.attachToInput(input);
+    input.value = 'jane@gmial.com';
+
+    widget.validate(input);
+    await vi.advanceTimersByTimeAsync(800);
+
+    return input;
+  };
+
+  it('shows the hint with the English message', async () => {
+    mockSuggestion('jane@gmail.com');
+
+    const input = await validateTypo();
+
+    const hint = document.querySelector('.cekemail-suggestion');
+    expect(hint?.textContent).toBe('Did you mean jane@gmail.com?');
+    expect(hint?.querySelector('button')?.textContent).toBe('jane@gmail.com');
+    expect(input.getAttribute('data-cekemail-suggestion')).toBe('jane@gmail.com');
+  });
+
+  it('shows the hint with the Indonesian message', async () => {
+    mockSuggestion('jane@gmail.com');
+
+    await validateTypo({ locale: 'id' });
+
+    expect(document.querySelector('.cekemail-suggestion')?.textContent).toBe(
+      'Mungkin maksud Anda jane@gmail.com?'
+    );
+  });
+
+  it('applies the suggestion when the button is clicked', async () => {
+    mockSuggestion('jane@gmail.com');
+    const input = await validateTypo();
+    const inputEvents: Event[] = [];
+    input.addEventListener('input', (event) => inputEvents.push(event));
+
+    (document.querySelector('.cekemail-suggestion button') as HTMLButtonElement).click();
+
+    expect(input.value).toBe('jane@gmail.com');
+    expect(inputEvents).toHaveLength(1);
+    expect(document.querySelector('.cekemail-suggestion')).toBe(null);
+    expect(input.hasAttribute('data-cekemail-suggestion')).toBe(false);
+
+    await vi.advanceTimersByTimeAsync(800);
+
+    expect(fetch).toHaveBeenCalledTimes(2);
+    expect(input.getAttribute('data-cekemail-state')).toBe('invalid');
+  });
+
+  it('validates once when applying the suggestion with validateOnChange enabled', async () => {
+    mockSuggestion('jane@gmail.com');
+    const input = await validateTypo({ validateOnChange: true });
+
+    (document.querySelector('.cekemail-suggestion button') as HTMLButtonElement).click();
+
+    await vi.advanceTimersByTimeAsync(800);
+
+    expect(input.value).toBe('jane@gmail.com');
+    expect(fetch).toHaveBeenCalledTimes(2);
+  });
+
+  it('does not show the hint when showSuggestion is false', async () => {
+    mockSuggestion('jane@gmail.com');
+
+    const input = await validateTypo({ showSuggestion: false });
+
+    expect(document.querySelector('.cekemail-suggestion')).toBe(null);
+    expect(input.hasAttribute('data-cekemail-suggestion')).toBe(false);
+  });
+
+  it('does not show the hint when there is no suggestion', async () => {
+    mockSuggestion(null);
+
+    await validateTypo();
+
+    expect(document.querySelector('.cekemail-suggestion')).toBe(null);
+  });
+
+  it('removes the hint when validation state is cleared', async () => {
+    mockSuggestion('jane@gmail.com');
+    const input = await validateTypo();
+
+    widget.clearValidationState(input);
+
+    expect(document.querySelector('.cekemail-suggestion')).toBe(null);
   });
 });

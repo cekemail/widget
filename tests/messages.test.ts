@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { BUILT_IN_MESSAGES, resolveMessages, messageForResult } from '../src/messages';
+import { BUILT_IN_MESSAGES, resolveMessages, messageForResult, formatMessage } from '../src/messages';
 
 describe('resolveMessages', () => {
   it('returns English by default', () => {
@@ -54,5 +54,27 @@ describe('messageForResult', () => {
 
   it('uses the generic message for unknown codes', () => {
     expect(messageForResult({ ...result, reason_code: 'something_new' }, true, messages, null, 'id')).toBe('Email valid');
+  });
+});
+
+describe('formatMessage', () => {
+  it('replaces a placeholder with the given param', () => {
+    expect(formatMessage('Did you mean :suggestion?', { suggestion: 'jane@gmail.com' })).toBe(
+      'Did you mean jane@gmail.com?'
+    );
+  });
+
+  it('replaces every occurrence of a placeholder', () => {
+    expect(formatMessage(':name, :name', { name: 'x' })).toBe('x, x');
+  });
+
+  it('leaves unknown placeholders untouched', () => {
+    expect(formatMessage('Did you mean :suggestion?', {})).toBe('Did you mean :suggestion?');
+  });
+
+  it('formats the bundled did_you_mean message per locale', () => {
+    const params = { suggestion: 'jane@gmail.com' };
+    expect(formatMessage(resolveMessages('en').did_you_mean, params)).toBe('Did you mean jane@gmail.com?');
+    expect(formatMessage(resolveMessages('id').did_you_mean, params)).toBe('Mungkin maksud Anda jane@gmail.com?');
   });
 });

@@ -13,13 +13,15 @@ import {
   DEFAULT_API_URL,
 } from './config';
 import { injectStyles } from './styles';
-import { resolveMessages, messageForResult } from './messages';
+import { resolveMessages, messageForResult, formatMessage } from './messages';
 import { isValidEmailFormat, normalizeEmail } from './validator';
 import { ApiClient, ApiError } from './api';
 import {
   wrapInputWithIndicator,
   setValidationState,
   clearValidationState,
+  setSuggestion,
+  clearSuggestion,
   findEmailInputs,
   isEmailInput,
   isDisabled,
@@ -267,6 +269,7 @@ export class CekEmail {
     const message = messageForResult(result, isValid, this.messages, resolver, this.config.locale);
 
     setValidationState(input as CekEmailInput, state, this.config.cssClass, message);
+    this.renderSuggestion(input as CekEmailInput, result);
 
     // Dispatch custom event
     const eventDetail: ValidatedEventDetail = { input, result, isValid };
@@ -275,6 +278,35 @@ export class CekEmail {
       bubbles: true,
     });
     input.dispatchEvent(event);
+  }
+
+  /**
+   * Render the "did you mean" hint when the API suggests a correction
+   */
+  private renderSuggestion(input: CekEmailInput, result: ValidationResult): void {
+    if (!this.config.showSuggestion) return;
+
+    const suggestion = typeof result.suggestion === 'string' ? result.suggestion.trim() : '';
+    if (!suggestion || suggestion === input.value.trim()) return;
+
+    const text = formatMessage(this.messages.did_you_mean, { suggestion });
+
+    setSuggestion(input, suggestion, text, this.config.cssClass, (value) =>
+      this.applySuggestion(input, value)
+    );
+  }
+
+  /**
+   * Apply a suggested address to the input and validate it again
+   */
+  private applySuggestion(input: CekEmailInput, suggestion: string): void {
+    input.value = suggestion;
+    clearSuggestion(input);
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+
+    if (!this.config.validateOnChange) {
+      this.handleInputEvent(input);
+    }
   }
 
   /**

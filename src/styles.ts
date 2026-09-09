@@ -11,6 +11,8 @@ export const WIDGET_STYLES = `
 input.cekemail-valid { border-color: #22c55e !important; }
 input.cekemail-invalid { border-color: #ef4444 !important; }
 input.cekemail-checking { border-color: #3b82f6 !important; }
+.cekemail-suggestion { margin-top: 4px; font-size: 13px; line-height: 1.4; color: #6b7280; }
+.cekemail-suggestion button { padding: 0; border: 0; background: none; font: inherit; color: #3b82f6; text-decoration: underline; cursor: pointer; }
 `;
 
 /**

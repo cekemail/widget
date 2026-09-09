@@ -94,6 +94,60 @@ export function clearValidationState(
     indicator.textContent = '';
     indicator.style.animation = '';
   }
+
+  clearSuggestion(input);
+}
+
+/**
+ * Render (or update) the "did you mean" hint next to an input
+ */
+export function setSuggestion(
+  input: CekEmailInput,
+  suggestion: string,
+  text: string,
+  cssClass: CekEmailCssClasses,
+  onApply: (suggestion: string) => void
+): void {
+  let element = input.__cekemailSuggestion;
+
+  if (!element) {
+    element = document.createElement('div');
+    element.className = cssClass.suggestion;
+
+    const anchor = input.parentElement?.classList.contains(cssClass.wrapper)
+      ? input.parentElement
+      : input;
+    anchor.parentNode?.insertBefore(element, anchor.nextSibling);
+
+    input.__cekemailSuggestion = element;
+  }
+
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.textContent = suggestion;
+  button.addEventListener('click', () => onApply(suggestion));
+
+  const parts = text.split(suggestion);
+
+  element.textContent = '';
+  element.appendChild(document.createTextNode(parts.shift() || ''));
+  element.appendChild(button);
+  element.appendChild(document.createTextNode(parts.join(suggestion)));
+
+  input.setAttribute('data-cekemail-suggestion', suggestion);
+}
+
+/**
+ * Remove the "did you mean" hint from an input
+ */
+export function clearSuggestion(input: CekEmailInput): void {
+  const element = input.__cekemailSuggestion;
+  if (element) {
+    element.parentNode?.removeChild(element);
+    input.__cekemailSuggestion = undefined;
+  }
+
+  input.removeAttribute('data-cekemail-suggestion');
 }
 
 /**

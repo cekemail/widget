@@ -67,6 +67,7 @@ widget.init({ apiKey: 'wk_xxxxxxxxxxxxx' });
 | `apiUrl` | `string` | `https://cekemail.com/api/v1/widget/email-check` | API endpoint |
 | `debounce` | `number` | `800` | Delay before validation (ms) |
 | `showIndicator` | `boolean` | `true` | Show validation icons |
+| `showSuggestion` | `boolean` | `true` | Show the "did you mean" hint under the input |
 | `autoAttach` | `boolean` | `true` | Auto-attach to email inputs |
 | `validateOnBlur` | `boolean` | `true` | Validate when field loses focus |
 | `validateOnChange` | `boolean` | `false` | Validate while typing |
@@ -83,6 +84,7 @@ widget.init({ apiKey: 'wk_xxxxxxxxxxxxx' });
   checking: 'cekemail-checking',
   wrapper: 'cekemail-wrapper',
   indicator: 'cekemail-indicator',
+  suggestion: 'cekemail-suggestion',
 }
 ```
 
@@ -121,6 +123,7 @@ Messages are looked up by the API's `reason_code`. Keys you can override:
 | Key | When it is shown |
 |-----|------------------|
 | `checking` | While a lookup is in progress |
+| `did_you_mean` | The API returned a likely correction; `:suggestion` is the corrected address |
 | `invalid_format` | The address failed the local format check |
 | `mailbox_exists` | The mailbox exists and accepts mail |
 | `mailbox_not_found` | The mail server reported the mailbox does not exist |
@@ -136,6 +139,21 @@ Messages are looked up by the API's `reason_code`. Keys you can override:
 | `policy_rejected` | The mail server rejected the address for policy reasons |
 | `unknown` | The verification could not be completed |
 | `valid` / `invalid` | Generic fallbacks when no code matches |
+
+### Did you mean
+
+When the API returns a `suggestion` (for example `jane@gmail.com` for `jane@gmial.com`), the widget shows a small hint under the input. Clicking the suggested address fills the field and validates it again. Translate it with the `did_you_mean` message, where `:suggestion` is replaced by the corrected address.
+
+```html
+<script>
+  CekEmail_APIKEY = 'wk_xxxxxxxxxxxxx';
+  CekEmail_LOCALE = 'id';
+  CekEmail_MESSAGES = { did_you_mean: 'Mungkin maksud Anda :suggestion?' };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@cekemail/widget"></script>
+```
+
+Set `showSuggestion: false` to keep the suggestion out of the DOM and render your own hint from the `cekemail:validated` event, which carries `result.suggestion`.
 
 ## API
 
