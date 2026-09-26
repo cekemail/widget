@@ -1,8 +1,10 @@
 # @cekemail/widget
 
-Email validation widget for CekEmail. Validates email addresses in real-time on your website.
+Official email-validation widget for [CekEmail](https://cekemail.com) — real-time email verification for your forms.
 
 ## Installation
+
+Get an API key at [cekemail.com](https://cekemail.com).
 
 ### CDN
 
@@ -391,6 +393,13 @@ jsDelivr serves the new npm version within minutes. To refresh the `@1` alias ri
 ```
 https://purge.jsdelivr.net/npm/@cekemail/widget@1
 ```
+
+## Links
+
+- [CekEmail](https://cekemail.com)
+- [Documentation](https://cekemail.com/docs/)
+- [Widget overview](https://cekemail.com/features/widget)
+- [Pricing](https://cekemail.com/pricing)
 
 ## License
 
