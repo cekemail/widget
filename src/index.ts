@@ -36,6 +36,7 @@ export type {
 } from './types';
 export { isValidEmailFormat, normalizeEmail } from './validator';
 export { ApiClient, ApiError } from './api';
+export type { ApiKeyGetter } from './api';
 export { DEFAULT_CONFIG, DEFAULT_API_URL, mergeConfig } from './config';
 export { BUILT_IN_MESSAGES, DEFAULT_LOCALE, resolveMessages, messageForResult, formatMessage } from './messages';
 

@@ -280,6 +280,72 @@ describe('CekEmail', () => {
       expect(widget.state.cache.has('new@example.com')).toBe(true);
     });
   });
+
+  describe('runtime API key', () => {
+    const okResponse = () =>
+      ({
+        ok: true,
+        json: () => Promise.resolve({ data: { is_valid: true, is_reachable: true, is_disposable_email: false } }),
+      }) as Response;
+
+    const sentKey = (call: number): string =>
+      (vi.mocked(fetch).mock.calls[call][1]!.headers as Record<string, string>)['X-Widget-Key'];
+
+    beforeEach(() => {
+      vi.spyOn(console, 'log').mockImplementation(() => {});
+      vi.spyOn(console, 'error').mockImplementation(() => {});
+      vi.mocked(fetch).mockResolvedValue(okResponse());
+    });
+
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    it('sends the key set with setApiKey on the next request', async () => {
+      widget.init({ apiKey: 'first-key', autoAttach: false });
+
+      await widget.validateEmailDirectly('one@example.com');
+      widget.setApiKey('second-key');
+      await widget.validateEmailDirectly('two@example.com');
+
+      expect(sentKey(0)).toBe('first-key');
+      expect(sentKey(1)).toBe('second-key');
+      expect(widget.config.apiKey).toBe('second-key');
+    });
+
+    it('uses a key set before init', async () => {
+      (window as any).CekEmail_APIKEY = 'global-key';
+
+      widget.setApiKey('runtime-key');
+      widget.init({ autoAttach: false });
+      await widget.validateEmailDirectly('one@example.com');
+
+      expect(sentKey(0)).toBe('runtime-key');
+    });
+
+    it('initializes when init is called manually after a keyless start', () => {
+      document.body.innerHTML = '<input type="email" id="email">';
+
+      widget.init();
+      expect(widget.state.initialized).toBe(false);
+
+      widget.init({ apiKey: 'late-key' });
+
+      expect(widget.state.initialized).toBe(true);
+      expect(document.getElementById('email')!.getAttribute('data-cekemail-attached')).toBe('true');
+    });
+
+    it('picks up a global key set after load when init is called again', async () => {
+      widget.init({ autoAttach: false });
+      (window as any).CekEmail_APIKEY = 'late-global-key';
+      widget.init();
+
+      await widget.validateEmailDirectly('one@example.com');
+
+      expect(widget.state.initialized).toBe(true);
+      expect(sentKey(0)).toBe('late-global-key');
+    });
+  });
 });
 
 describe('CekEmail localization', () => {

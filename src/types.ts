@@ -162,6 +162,7 @@ export interface CekEmailInstance {
   config: CekEmailConfig;
   state: CekEmailState;
   init(config?: Partial<CekEmailConfig>): void;
+  setApiKey(key: string): void;
   validate(inputOrEmail: HTMLInputElement | string): Promise<ValidationResult | void>;
   validateEmailDirectly(email: string): Promise<ValidationResult>;
   attachToInput(input: HTMLInputElement): void;

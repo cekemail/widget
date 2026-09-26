@@ -57,7 +57,7 @@ export class CekEmail {
 
     // Check for legacy global config
     if (typeof window !== 'undefined') {
-      if (window.CekEmail_APIKEY && !userConfig?.apiKey) {
+      if (window.CekEmail_APIKEY && !userConfig?.apiKey && !this.config.apiKey) {
         userConfig = {
           ...userConfig,
           apiKey: window.CekEmail_APIKEY,
@@ -97,7 +97,10 @@ export class CekEmail {
     }
 
     // Initialize API client
-    this.apiClient = new ApiClient(this.config.apiUrl, this.config.apiKey);
+    this.apiClient = new ApiClient(
+      this.config.apiUrl,
+      () => this.config.apiKey ?? (typeof window !== 'undefined' ? window.CekEmail_APIKEY : null)
+    );
 
     // Inject styles
     injectStyles();
@@ -110,6 +113,16 @@ export class CekEmail {
 
     this.state.initialized = true;
     console.log('[CekEmail] Widget initialized');
+  }
+
+  /**
+   * Replace the API key used for subsequent requests.
+   *
+   * Before init() it becomes the key init() uses; afterwards it takes effect
+   * on the next validation without re-attaching to any input.
+   */
+  setApiKey(key: string): void {
+    this.config.apiKey = key;
   }
 
   /**

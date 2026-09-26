@@ -42,6 +42,24 @@ describe('ApiClient', () => {
     });
   });
 
+  it('reads the key from a getter on every request', async () => {
+    let currentKey = 'first-key';
+    const rotatingClient = new ApiClient(mockApiUrl, () => currentKey);
+    vi.mocked(fetch).mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({ data: { is_valid: true, is_reachable: true, is_disposable_email: false } }),
+    } as Response);
+
+    await rotatingClient.validateEmail('one@example.com');
+    currentKey = 'second-key';
+    await rotatingClient.validateEmail('two@example.com');
+
+    const keys = vi.mocked(fetch).mock.calls.map(
+      ([, init]) => (init!.headers as Record<string, string>)['X-Widget-Key']
+    );
+    expect(keys).toEqual(['first-key', 'second-key']);
+  });
+
   it('should return validation result on success', async () => {
     const mockResult = {
       is_valid: true,

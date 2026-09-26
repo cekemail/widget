@@ -1,13 +1,22 @@
 import type { ValidationResult, ApiResponse } from './types';
 
 /**
+ * Returns the API key to send with the next request
+ */
+export type ApiKeyGetter = () => string | null | undefined;
+
+/**
  * API client for email validation
  */
 export class ApiClient {
+  private getApiKey: ApiKeyGetter;
+
   constructor(
     private apiUrl: string,
-    private apiKey: string
-  ) {}
+    apiKey: string | ApiKeyGetter
+  ) {
+    this.getApiKey = typeof apiKey === 'function' ? apiKey : () => apiKey;
+  }
 
   /**
    * Validate an email address via the API
@@ -17,7 +26,7 @@ export class ApiClient {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-Widget-Key': this.apiKey,
+        'X-Widget-Key': this.getApiKey() ?? '',
         Accept: 'application/json',
       },
       body: JSON.stringify({ email }),

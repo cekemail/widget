@@ -168,6 +168,28 @@ widget.init({
 });
 ```
 
+### `setApiKey(key)`
+
+Replace the API key used for subsequent requests. Inputs stay attached and cached results are kept.
+
+```typescript
+widget.setApiKey('wk_yyyyyyyyyyyyy');
+```
+
+#### Rotating keys
+
+If your page hands out short-lived keys, the script does not need a key at load time. Load it without `CekEmail_APIKEY`, then call `init()` once the first key arrives and `setApiKey()` whenever it is replaced:
+
+```javascript
+// First key: initialize the widget that was loaded without one
+window.CekEmail.init({ apiKey: firstKey });
+
+// Later: rotate without re-initializing
+window.CekEmail.setApiKey(nextKey);
+```
+
+Calling `setApiKey()` before `init()` makes that key the one `init()` uses.
+
 ### `validate(input | email)`
 
 Validate an input element or email string.
