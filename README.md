@@ -377,14 +377,23 @@ const result: ValidationResult = await widget.validateEmailDirectly('test@exampl
 
 ## Publishing
 
+Releases are published to npm by GitHub Actions (`.github/workflows/publish.yml`) using [npm trusted publishing](https://docs.npmjs.com/trusted-publishers), so no npm token is stored in the repo.
+
 For maintainers:
+
+1. Bump `version` in `package.json` (e.g. `npm version patch --no-git-tag-version`) and commit.
+2. Push to `main`.
+3. Create a GitHub Release with the tag `vX.Y.Z`, matching the new version.
+4. The workflow runs the tests, builds, and publishes to npm with provenance. It fails if the tag doesn't match `package.json`.
+
+Manual publishing still works:
 
 ```bash
 npm login
 npm publish
 ```
 
-`npm publish` runs the build first (`prepublishOnly`), and `publishConfig.access` makes the scoped package public. Bump `version` in `package.json` before publishing.
+`npm publish` runs the build first (`prepublishOnly`), and `publishConfig.access` makes the scoped package public.
 
 Pushing to `main` or publishing a GitHub release deploys the build to `static.cekemail.com/widget/` and purges the Cloudflare cache for those files.
 
