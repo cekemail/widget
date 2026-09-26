@@ -9,7 +9,7 @@
  * <script>
  *   CekEmail_APIKEY = 'wk_xxxxxxxxxxxxx';
  * </script>
- * <script src="https://cdn.jsdelivr.net/npm/@cekemail/widget@1"></script>
+ * <script src="https://static.cekemail.com/widget/v1/cekemail.min.js"></script>
  * ```
  *
  * @example NPM Usage

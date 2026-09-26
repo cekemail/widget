@@ -4,21 +4,27 @@ Email validation widget for CekEmail. Validates email addresses in real-time on 
 
 ## Installation
 
+### CDN
+
+```html
+<script>
+  CekEmail_APIKEY = 'wk_xxxxxxxxxxxxx';
+</script>
+<script src="https://static.cekemail.com/widget/v1/cekemail.min.js"></script>
+```
+
+- `widget/v1/cekemail.min.js` serves the latest 1.x release: you get every 1.x fix and feature automatically, but never a breaking 2.x release. Prefer it in production.
+- `widget/cekemail.min.js` always serves the latest release, including future major releases with breaking changes.
+
+> **Alternative CDN:** the package is also available on jsDelivr at `https://cdn.jsdelivr.net/npm/@cekemail/widget@1`. The `@1` pins the major version the same way `v1/` does. To lock an exact release, use a full version such as `@cekemail/widget@1.2.2`.
+
 ### NPM
+
+For bundlers:
 
 ```bash
 npm install @cekemail/widget
 ```
-
-### CDN
-
-```html
-<script src="https://cdn.jsdelivr.net/npm/@cekemail/widget@1"></script>
-```
-
-The `@1` pins the major version: you get every 1.x fix and feature automatically, but never a breaking 2.x release. To lock an exact release, use a full version such as `@cekemail/widget@1.2.2`.
-
-> The unpinned URL `https://cdn.jsdelivr.net/npm/@cekemail/widget` also works, but it always serves the latest version, including future major releases with breaking changes. Prefer `@1` in production.
 
 ## Usage
 
@@ -30,7 +36,7 @@ Add this code to your website, just before the closing `</body>` tag:
 <script>
   CekEmail_APIKEY = 'wk_xxxxxxxxxxxxx';
 </script>
-<script src="https://cdn.jsdelivr.net/npm/@cekemail/widget@1"></script>
+<script src="https://static.cekemail.com/widget/v1/cekemail.min.js"></script>
 ```
 
 The widget will automatically:
@@ -102,7 +108,7 @@ The widget ships with English and Indonesian messages. Pick one with `locale`, o
   CekEmail_LOCALE = 'id';
   CekEmail_MESSAGES = { mailbox_not_found: 'Alamat ini tidak ditemukan' };
 </script>
-<script src="https://cdn.jsdelivr.net/npm/@cekemail/widget@1"></script>
+<script src="https://static.cekemail.com/widget/v1/cekemail.min.js"></script>
 ```
 
 ```typescript
@@ -154,7 +160,7 @@ When the API returns a `suggestion` (for example `jane@gmail.com` for `jane@gmia
   CekEmail_LOCALE = 'id';
   CekEmail_MESSAGES = { did_you_mean: 'Mungkin maksud Anda :suggestion?' };
 </script>
-<script src="https://cdn.jsdelivr.net/npm/@cekemail/widget@1"></script>
+<script src="https://static.cekemail.com/widget/v1/cekemail.min.js"></script>
 ```
 
 Set `showSuggestion: false` to keep the suggestion out of the DOM and render your own hint from the `cekemail:validated` event, which carries `result.suggestion`.
@@ -357,7 +363,9 @@ npm publish
 
 `npm publish` runs the build first (`prepublishOnly`), and `publishConfig.access` makes the scoped package public. Bump `version` in `package.json` before publishing.
 
-jsDelivr serves the new version within minutes. To refresh the `@1` alias right away, purge it:
+Pushing to `main` or publishing a GitHub release deploys the build to `static.cekemail.com/widget/` and purges the Cloudflare cache for those files.
+
+jsDelivr serves the new npm version within minutes. To refresh the `@1` alias right away, purge it:
 
 ```
 https://purge.jsdelivr.net/npm/@cekemail/widget@1
