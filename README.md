@@ -13,8 +13,12 @@ npm install @cekemail/widget
 ### CDN
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/@cekemail/widget"></script>
+<script src="https://cdn.jsdelivr.net/npm/@cekemail/widget@1"></script>
 ```
+
+The `@1` pins the major version: you get every 1.x fix and feature automatically, but never a breaking 2.x release. To lock an exact release, use a full version such as `@cekemail/widget@1.2.2`.
+
+> The unpinned URL `https://cdn.jsdelivr.net/npm/@cekemail/widget` also works, but it always serves the latest version, including future major releases with breaking changes. Prefer `@1` in production.
 
 ## Usage
 
@@ -26,7 +30,7 @@ Add this code to your website, just before the closing `</body>` tag:
 <script>
   CekEmail_APIKEY = 'wk_xxxxxxxxxxxxx';
 </script>
-<script src="https://cdn.jsdelivr.net/npm/@cekemail/widget"></script>
+<script src="https://cdn.jsdelivr.net/npm/@cekemail/widget@1"></script>
 ```
 
 The widget will automatically:
@@ -98,7 +102,7 @@ The widget ships with English and Indonesian messages. Pick one with `locale`, o
   CekEmail_LOCALE = 'id';
   CekEmail_MESSAGES = { mailbox_not_found: 'Alamat ini tidak ditemukan' };
 </script>
-<script src="https://cdn.jsdelivr.net/npm/@cekemail/widget"></script>
+<script src="https://cdn.jsdelivr.net/npm/@cekemail/widget@1"></script>
 ```
 
 ```typescript
@@ -150,7 +154,7 @@ When the API returns a `suggestion` (for example `jane@gmail.com` for `jane@gmia
   CekEmail_LOCALE = 'id';
   CekEmail_MESSAGES = { did_you_mean: 'Mungkin maksud Anda :suggestion?' };
 </script>
-<script src="https://cdn.jsdelivr.net/npm/@cekemail/widget"></script>
+<script src="https://cdn.jsdelivr.net/npm/@cekemail/widget@1"></script>
 ```
 
 Set `showSuggestion: false` to keep the suggestion out of the DOM and render your own hint from the `cekemail:validated` event, which carries `result.suggestion`.
@@ -341,6 +345,23 @@ const result: ValidationResult = await widget.validateEmailDirectly('test@exampl
 - Firefox (last 2 versions)
 - Safari (last 2 versions)
 - Edge (last 2 versions)
+
+## Publishing
+
+For maintainers:
+
+```bash
+npm login
+npm publish
+```
+
+`npm publish` runs the build first (`prepublishOnly`), and `publishConfig.access` makes the scoped package public. Bump `version` in `package.json` before publishing.
+
+jsDelivr serves the new version within minutes. To refresh the `@1` alias right away, purge it:
+
+```
+https://purge.jsdelivr.net/npm/@cekemail/widget@1
+```
 
 ## License
 
