@@ -64,7 +64,7 @@ widget.init({ apiKey: 'wk_xxxxxxxxxxxxx' });
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | `apiKey` | `string` | `null` | Widget API key (required) |
-| `apiUrl` | `string` | `https://cekemail.com/api/v1/widget/email-check` | API endpoint |
+| `apiUrl` | `string` | `https://api.cekemail.com/v1/widget/email-check` | API endpoint |
 | `debounce` | `number` | `800` | Delay before validation (ms) |
 | `showIndicator` | `boolean` | `true` | Show validation icons |
 | `showSuggestion` | `boolean` | `true` | Show the "did you mean" hint under the input |

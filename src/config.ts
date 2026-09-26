@@ -15,7 +15,7 @@ export const DEFAULT_CSS_CLASSES: CekEmailCssClasses = {
 /**
  * Default API URL
  */
-export const DEFAULT_API_URL = 'https://cekemail.com/api/v1/widget/email-check';
+export const DEFAULT_API_URL = 'https://api.cekemail.com/v1/widget/email-check';
 
 /**
  * Default configuration
