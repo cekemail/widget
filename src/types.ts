@@ -167,4 +167,6 @@ export interface CekEmailInstance {
   validateEmailDirectly(email: string): Promise<ValidationResult>;
   attachToInput(input: HTMLInputElement): void;
   clearValidationState(input: HTMLInputElement): void;
+  clearCache(): void;
+  getCacheSize(): number;
 }

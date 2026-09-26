@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { CekEmail } from '../src/cekemail';
-import type { CekEmailConfig } from '../src/types';
+import type { CekEmailConfig, CekEmailInstance } from '../src/types';
 
 describe('CekEmail', () => {
   let widget: CekEmail;
@@ -244,6 +244,22 @@ describe('CekEmail', () => {
       widget.clearCache();
 
       expect(widget.getCacheSize()).toBe(0);
+    });
+
+    it('should expose cache methods on CekEmailInstance', () => {
+      const instance: CekEmailInstance = widget;
+
+      instance.state.cache.set('test@example.com', {
+        is_valid: true,
+        is_reachable: true,
+        is_disposable_email: false,
+      });
+
+      expect(instance.getCacheSize()).toBe(1);
+
+      instance.clearCache();
+
+      expect(instance.getCacheSize()).toBe(0);
     });
   });
 
