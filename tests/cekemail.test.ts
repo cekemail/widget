@@ -91,6 +91,23 @@ describe('CekEmail', () => {
       consoleSpy.mockRestore();
     });
 
+    it.each([
+      'https://static.cekemail.com/widget/v1/cekemail.min.js',
+      'https://cdn.jsdelivr.net/npm/@cekemail/widget@1',
+      'https://example.com/widget/cekemail.js',
+    ])('should keep the default API URL when loaded from %s', (src) => {
+      const script = document.createElement('script');
+      script.src = src;
+      document.body.appendChild(script);
+      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+
+      widget.init({ apiKey: 'test-key' });
+
+      expect(widget.config.apiUrl).toBe('https://api.cekemail.com/v1/widget/email-check');
+
+      consoleSpy.mockRestore();
+    });
+
     it('should not re-initialize', () => {
       const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
 

@@ -9,7 +9,6 @@ import type {
 import {
   DEFAULT_CONFIG,
   mergeConfig,
-  getApiUrlFromScript,
   DEFAULT_API_URL,
 } from './config';
 import { injectStyles } from './styles';
@@ -88,7 +87,7 @@ export class CekEmail {
 
     // Set default API URL if not provided
     if (!this.config.apiUrl) {
-      this.config.apiUrl = getApiUrlFromScript() || DEFAULT_API_URL;
+      this.config.apiUrl = DEFAULT_API_URL;
     }
 
     if (!this.config.apiKey) {

@@ -85,6 +85,27 @@ widget.init({ apiKey: 'wk_xxxxxxxxxxxxx' });
 | `locale` | `string` | `'en'` | Language for built-in messages (`en`, `id`) |
 | `messages` | `object \| function` | `null` | Custom messages keyed by reason code, or a function (see [Localization](#localization)) |
 
+### Self-hosted API
+
+The widget always calls `https://api.cekemail.com/v1/widget/email-check`, wherever the script itself is loaded from. If you run your own CekEmail API, set the endpoint explicitly with `CekEmail_API_URL`:
+
+```html
+<script>
+  CekEmail_APIKEY = 'wk_xxxxxxxxxxxxx';
+  CekEmail_API_URL = 'https://email-check.example.com/v1/widget/email-check';
+</script>
+<script src="https://static.cekemail.com/widget/v1/cekemail.min.js"></script>
+```
+
+With npm, pass `apiUrl` to `init()` instead:
+
+```typescript
+widget.init({
+  apiKey: 'wk_xxxxxxxxxxxxx',
+  apiUrl: 'https://email-check.example.com/v1/widget/email-check',
+});
+```
+
 ### CSS Classes
 
 ```typescript

@@ -1,10 +1,9 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import {
   DEFAULT_CONFIG,
   DEFAULT_CSS_CLASSES,
   DEFAULT_API_URL,
   mergeConfig,
-  getApiUrlFromScript,
 } from '../src/config';
 
 describe('DEFAULT_CONFIG', () => {
@@ -60,31 +59,8 @@ describe('mergeConfig', () => {
   });
 });
 
-describe('getApiUrlFromScript', () => {
-  beforeEach(() => {
-    // Clear any existing scripts
-    document.head.innerHTML = '';
-    document.body.innerHTML = '';
-  });
-
-  it('should return default URL when no script found', () => {
-    expect(getApiUrlFromScript()).toBe(DEFAULT_API_URL);
-  });
-
-  it('should extract URL from script src', () => {
-    const script = document.createElement('script');
-    script.src = 'https://example.com/widget/cekemail.v1.js';
-    document.body.appendChild(script);
-
-    expect(getApiUrlFromScript()).toBe('https://example.com/api/v1/widget/email-check');
-  });
-
-  it('should handle relative script URLs', () => {
-    const script = document.createElement('script');
-    script.src = '/widget/cekemail.js';
-    document.body.appendChild(script);
-
-    const result = getApiUrlFromScript();
-    expect(result).toContain('/api/v1/widget/email-check');
+describe('DEFAULT_API_URL', () => {
+  it('should point at the api.cekemail.com widget endpoint', () => {
+    expect(DEFAULT_API_URL).toBe('https://api.cekemail.com/v1/widget/email-check');
   });
 });

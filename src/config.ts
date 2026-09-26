@@ -52,23 +52,3 @@ export function mergeConfig(
     },
   };
 }
-
-/**
- * Get API URL from script source or use default
- */
-export function getApiUrlFromScript(): string {
-  if (typeof document === 'undefined') return DEFAULT_API_URL;
-
-  const script = document.querySelector('script[src*="cekemail"]');
-  if (!script) return DEFAULT_API_URL;
-
-  try {
-    const src = script.getAttribute('src');
-    if (!src) return DEFAULT_API_URL;
-
-    const url = new URL(src, window.location.href);
-    return `${url.protocol}//${url.host}/api/v1/widget/email-check`;
-  } catch {
-    return DEFAULT_API_URL;
-  }
-}
