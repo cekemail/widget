@@ -61,8 +61,8 @@ jobs:
           user: ${{ secrets.SFTP_USER }}
           privateKey: ${{ secrets.SSH_KEY }}
           actions: |
-            upload deploy/widget ./web/static.cekemail.com/widget
-            write ${{ github.sha }} ./web/static.cekemail.com/widget/.revision
+            upload deploy/widget ./web/static.cekemail.com/public/widget
+            write ${{ github.sha }} ./web/static.cekemail.com/public/widget/.revision
 
       - name: Skip Cloudflare purge
         if: ${{ env.CF_ZONE_ID == '' || env.CF_API_TOKEN == '' }}
